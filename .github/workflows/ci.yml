@@ -15,3 +15,28 @@ jobs:
 
       - name: Confirm pipeline runs
         run: echo "CI pipeline is working! Ready to add security scanning."
+
+
+
+sast-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Juice Shop source code
+        uses: actions/checkout@v4
+        with:
+          repository: juice-shop/juice-shop
+          path: juice-shop-src
+
+      - name: Install Semgrep
+        run: pip install semgrep
+
+      - name: Run Semgrep scan
+        run: semgrep --config=auto juice-shop-src --json --output semgrep-results.json
+        continue-on-error: true
+
+      - name: Upload scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-results
+          path: semgrep-results.json
+
