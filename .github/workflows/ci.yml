@@ -32,14 +32,13 @@ jobs:
         run: semgrep --config=auto juice-shop-src --json --output semgrep-results.json
         continue-on-error: true
 
-      - name: Upload scan results
+      - name: Upload SAST scan results
         uses: actions/upload-artifact@v4
         with:
           name: semgrep-results
           path: semgrep-results.json
 
-
-sca-scan:
+  sca-scan:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Juice Shop source code
@@ -57,7 +56,7 @@ sca-scan:
           output: trivy-results.json
           severity: CRITICAL,HIGH,MEDIUM
 
-      - name: Upload scan results
+      - name: Upload SCA scan results
         uses: actions/upload-artifact@v4
         with:
           name: trivy-results
