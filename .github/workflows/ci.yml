@@ -16,9 +16,7 @@ jobs:
       - name: Confirm pipeline runs
         run: echo "CI pipeline is working! Ready to add security scanning."
 
-
-
-sast-scan:
+  sast-scan:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Juice Shop source code
@@ -39,4 +37,3 @@ sast-scan:
         with:
           name: semgrep-results
           path: semgrep-results.json
-
