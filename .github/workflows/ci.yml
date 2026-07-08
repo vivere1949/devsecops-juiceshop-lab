@@ -42,6 +42,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Juice Shop source code
+        - name: Debug - list files
+        run: |
+          echo "Contents of juice-shop-src:"
+          ls -la juice-shop-src/ | head -20
+          echo "---"
+          echo "Looking for package.json and lockfiles:"
+          find juice-shop-src -maxdepth 2 -name "package*.json"
         uses: actions/checkout@v4
         with:
           repository: juice-shop/juice-shop
