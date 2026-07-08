@@ -56,6 +56,7 @@ jobs:
           output: trivy-results.json
           severity: CRITICAL,HIGH,MEDIUM
 
+
       - name: Upload SCA scan results
         uses: actions/upload-artifact@v4
         with:
