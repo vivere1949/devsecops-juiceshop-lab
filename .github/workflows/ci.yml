@@ -42,27 +42,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Juice Shop source code
-        - name: Debug - list files
+        uses: actions/checkout@v4
+        with:
+          repository: juice-shop/juice-shop
+          path: juice-shop-src
+
+      - name: Debug - list files
         run: |
           echo "Contents of juice-shop-src:"
           ls -la juice-shop-src/ | head -20
           echo "---"
           echo "Looking for package.json and lockfiles:"
           find juice-shop-src -maxdepth 2 -name "package*.json"
-        uses: actions/checkout@v4
-        with:
-          repository: juice-shop/juice-shop
-          path: juice-shop-src
 
       - name: Run Trivy dependency scan
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
-          scan-ref: juice-shop-src
+          scan-ref: ./juice-shop-src
           format: json
           output: trivy-results.json
           severity: CRITICAL,HIGH,MEDIUM
-
+          scanners: vuln,secret
 
       - name: Upload SCA scan results
         uses: actions/upload-artifact@v4
