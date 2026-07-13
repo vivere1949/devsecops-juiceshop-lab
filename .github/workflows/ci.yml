@@ -74,8 +74,8 @@ jobs:
   secrets-scan:
     runs-on: ubuntu-latest
     permissions:
-     contents: read
-     security-events: write
+      contents: read
+      security-events: write
     steps:
       - name: Checkout Juice Shop source code (full history)
         uses: actions/checkout@v4
