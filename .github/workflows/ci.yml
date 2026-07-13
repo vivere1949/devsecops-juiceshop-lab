@@ -69,3 +69,20 @@ jobs:
         with:
           name: trivy-results
           path: trivy-results.json
+
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Juice Shop source code (full history)
+        uses: actions/checkout@v4
+        with:
+          repository: juice-shop/juice-shop
+          path: juice-shop-src
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path: juice-shop-src
