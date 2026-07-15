@@ -28,7 +28,7 @@ jobs:
       - name: Install Semgrep
         run: pip install semgrep
 
-      - name: Run Semgrep scan
+      - name: Run Semgrep scan (full report, non-blocking)
         run: semgrep --config=auto juice-shop-src --json --output semgrep-results.json
         continue-on-error: true
 
@@ -37,6 +37,10 @@ jobs:
         with:
           name: semgrep-results
           path: semgrep-results.json
+
+      - name: Gate on ERROR-severity findings
+        run: |
+          semgrep --config=auto juice-shop-src --severity ERROR --error
 
   sca-scan:
     runs-on: ubuntu-latest
@@ -71,6 +75,42 @@ jobs:
           name: trivy-results
           path: trivy-results.json
 
+  image-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Juice Shop source code
+        uses: actions/checkout@v4
+        with:
+          repository: juice-shop/juice-shop
+          path: juice-shop-src
+
+      - name: Build Docker image
+        run: docker build -t juice-shop-local:latest ./juice-shop-src
+
+      - name: Run Trivy image scan (full report, non-blocking)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: image
+          image-ref: juice-shop-local:latest
+          format: json
+          output: trivy-image-results.json
+          severity: CRITICAL,HIGH,MEDIUM
+
+      - name: Upload image scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-image-results
+          path: trivy-image-results.json
+
+      - name: Gate on CRITICAL vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: image
+          image-ref: juice-shop-local:latest
+          format: table
+          severity: CRITICAL
+          exit-code: '1'
+
   secrets-scan:
     runs-on: ubuntu-latest
     permissions:
@@ -89,30 +129,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
-
-  image-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Juice Shop source code
-        uses: actions/checkout@v4
-        with:
-          repository: juice-shop/juice-shop
-          path: juice-shop-src
-
-      - name: Build Docker image
-        run: docker build -t juice-shop-local:latest ./juice-shop-src
-
-      - name: Run Trivy image scan
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: image
-          image-ref: juice-shop-local:latest
-          format: json
-          output: trivy-image-results.json
-          severity: CRITICAL,HIGH,MEDIUM
-
-      - name: Upload image scan results
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-image-results
-          path: trivy-image-results.json
